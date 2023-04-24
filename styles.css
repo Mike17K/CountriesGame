@@ -68,7 +68,7 @@ h4>span{
     bottom: 0;
 }
 
-.sidebar>button:hover{
+.sidebar>button:hover:not(.disabled){
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.41);
     cursor: pointer;
     border: 2px solid rgb(0, 0, 0);
@@ -115,11 +115,12 @@ h4>span{
 }
 
 .progress-complete{
-    --progress: 30%;
+    --progress: 0%;
     width: var(--progress);
     height: 100%;
     border-radius: 5px;
     background-color: #2300e79f;
+    transition: all 0.5s;
 }
 
 .choices{
@@ -153,8 +154,7 @@ h4>span{
 }
 
 .card-img{
-    width: 100px;
-    height: 70px;
+    background-size: contain;
 }
 
 .card>.text-wrapper{
@@ -168,7 +168,6 @@ h4>span{
     color: #3b3b3b; 
 }
 
-.itis,
 .correct{
     box-shadow: 0px 0px 2px rgb(25, 220, 48);
     background-color: rgba(0, 222, 0, 0.085);
@@ -179,4 +178,26 @@ h4>span{
     box-shadow: 0px 0px 2px rgb(220, 25, 25);
     background-color: rgba(222, 0, 0, 0.11);
     border: 2px solid rgb(191, 0, 0);
+}
+
+#next-level.disabled{
+    cursor: not-allowed;
+    border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+}
+
+.end-img,
+.success-img{
+    background: #67ff7b80;
+    position: absolute;
+    left: 50vw;
+    transform: translate(-50%,40%);
+    display: block;
+    padding:200px;
+    color: white;
+    font-size: 2rem;
+    opacity: 0;
+    transition: all 0.5s;
+    z-index: -1;
 }

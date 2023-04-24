@@ -1,6 +1,6 @@
 loadData("GRE");
 document.querySelector("#new-game").addEventListener('click',handleNewGame);
-
+document.querySelector("#next-level").classList.add("disabled");
 
 // if the current game is complete enable the button
 // document.q-uerySelector("#next-level").addEventListener('click',handleNextLevel);
@@ -8,7 +8,28 @@ document.querySelector("#new-game").addEventListener('click',handleNewGame);
 
 let score = 0;
 let round = 1;
+let maxRound = 3;
 updateSideBar();
+
+function viewScore(){
+
+    document.querySelector("#round-end").innerHTML=`${round-1}`;
+    document.querySelector("#score-end").innerHTML=`${score}`;
+    
+    document.querySelector(".end-img").style.opacity = "1";
+    document.querySelector(".end-img").style.zIndex = 2;
+    setTimeout(()=>{
+        document.querySelector(".end-img").style.zIndex = -1;
+        document.querySelector(".end-img").style.opacity = "0";
+    },3000);
+    
+
+}
+
+
+function updateProgressBar(){
+    document.querySelector(".progress-complete").style.setProperty("--progress",`${Math.floor((round-1)/(maxRound-1)*100)}%`)   
+}
 
 // card click
 function handleCardClick(e){
@@ -22,12 +43,37 @@ function handleCardClick(e){
     e.target.removeEventListener('click',handleCardClick);
     updateSideBar();
     if (!hasAllAnswersBeenFound()){
-        handleNextLevel();
+        
+        round +=1 ;
+        updateProgressBar();
+        if(round>=maxRound){
+            document.querySelectorAll(".choices>.card").forEach((e)=>{
+                e.removeEventListener('click',handleCardClick);
+            });
+
+            console.log("end");
+
+            viewScore();
+            return
+        }
+        
+        document.querySelector("#next-level").classList.remove("disabled");
+        document.querySelector("#next-level").addEventListener('click',handleNextLevel);
+        trigerFireworks();
+        document.querySelectorAll(".choices>.card").forEach((e)=>{
+            e.removeEventListener('click',handleCardClick);
+        });
     }
 }
 
-
-
+function trigerFireworks(){
+    document.querySelector(".success-img").style.opacity = "1";
+    document.querySelector(".success-img").style.zIndex = 2;
+    setTimeout(()=>{
+        document.querySelector(".success-img").style.zIndex = -1;
+        document.querySelector(".success-img").style.opacity = "0";
+    },1500);
+}
 
 function updateSideBar(){
     document.querySelector("#round").innerHTML = round;
@@ -35,14 +81,16 @@ function updateSideBar(){
 }
 
 function handleNewGame(){
-    let score = 0;
-    let round = 1;
-
+    score = 0;
+    round = 1;
+    updateSideBar();
     handleNextLevel();
 }
 
 function handleNextLevel(){
-    round +=1 ;
+    document.querySelector("#next-level").classList.add("disabled");
+    document.querySelector("#next-level").removeEventListener('click',handleNextLevel);
+
     updateSideBar();
 
     const parent  = document.querySelector(".choices")
@@ -72,6 +120,9 @@ function loadData(countryName3){
                     return ;
                 }
                 document.querySelector(".topbar>p").innerHTML=data[0].name.common;
+                const flag = data[0].cca2.toLowerCase();
+                document.querySelector(".topbar>.country-img").src = `https://flagcdn.com/${flag}.svg`;
+                
                 const naibourCountries = data[0].borders;
             
             let output = [];
@@ -96,7 +147,7 @@ function loadData(countryName3){
                 const index_new = getRandomInt(countryObjects.length);
                 let isInArray=false;
                 for(let i=0;i<output.length;i++){
-                    if(output[i].index==index_new){
+                    if(output[i].index==index_new || countryObjects[index_new].code3===countryName3){
                         isInArray=true
                         break;
                     }
@@ -127,7 +178,7 @@ function loadData(countryName3){
             const card = document.createElement('div');
             card.classList.add('card');
             card.classList.add(e.isNai?'itis':'itisnot');
-            card.innerHTML=`<div class="img-wrapper"><div class="card-img country-img"></div></div><div class="text-wrapper"><span>${e.name}</span></div>`;
+            card.innerHTML=`<div class="img-wrapper"><img src="${e.src}" class="card-img country-img"></div><div class="text-wrapper"><span>${e.name}</span></div>`;
             card.addEventListener('click',handleCardClick);
             document.querySelector(".choices").appendChild(card);
         }) 
