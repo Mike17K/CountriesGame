@@ -1,3 +1,68 @@
+loadData("GRE");
+document.querySelector("#new-game").addEventListener('click',handleNewGame);
+
+
+// if the current game is complete enable the button
+// document.q-uerySelector("#next-level").addEventListener('click',handleNextLevel);
+
+
+let score = 0;
+let round = 1;
+updateSideBar();
+
+// card click
+function handleCardClick(e){
+    if(e.target.closest(".card").classList.contains("itis")){
+        e.target.closest(".card").classList.add("correct");
+        score += 5;
+    }else{
+        score -= 3;
+        e.target.closest(".card").classList.add("error");
+    }
+    e.target.removeEventListener('click',handleCardClick);
+    updateSideBar();
+    if (!hasAllAnswersBeenFound()){
+        handleNextLevel();
+    }
+}
+
+
+
+
+function updateSideBar(){
+    document.querySelector("#round").innerHTML = round;
+    document.querySelector("#score").innerHTML = score;
+}
+
+function handleNewGame(){
+    let score = 0;
+    let round = 1;
+
+    handleNextLevel();
+}
+
+function handleNextLevel(){
+    round +=1 ;
+    updateSideBar();
+
+    const parent  = document.querySelector(".choices")
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+    let choice = getRandomInt(countryObjects.length);
+    loadData(countryObjects[choice].code3);
+}
+
+function hasAllAnswersBeenFound(){
+    const list = document.querySelector(".choices").children;
+    for(let i=0;i<list.length;i++){
+        if( !list[i].classList.contains("correct") && list[i].classList.contains("itis") ){
+            return true;
+        }
+    }
+    return false;
+}
+
 function loadData(countryName3){
     fetch(`https://restcountries.com/v3/alpha/${countryName3}`).then(data=>data.json()).then((data) =>{ 
             if (data.length!=0){
@@ -26,7 +91,7 @@ function loadData(countryName3){
                 }
             });
 
-            while(16 - output.length > 0){
+            while(12 - output.length > 0){
                 // pick some random countries  
                 const index_new = getRandomInt(countryObjects.length);
                 let isInArray=false;
@@ -47,12 +112,23 @@ function loadData(countryName3){
             
             } 
 
-        // we have the data in the output array of objects   
+        // we have the data in the output array of objects  
+        const shuffleES6 = (array) => {
+            array.reverse().forEach((item, index) => {
+                const j = Math.floor(Math.random() * (index + 1));
+                [array[index], array[j]] = [array[j], array[index]];
+            });
+        
+            return array;
+        };
+
+        output = shuffleES6(output); 
         output.forEach(e=>{
             const card = document.createElement('div');
             card.classList.add('card');
-            card.classList.add(e.isNai?'correct':'error');
+            card.classList.add(e.isNai?'itis':'itisnot');
             card.innerHTML=`<div class="img-wrapper"><div class="card-img country-img"></div></div><div class="text-wrapper"><span>${e.name}</span></div>`;
+            card.addEventListener('click',handleCardClick);
             document.querySelector(".choices").appendChild(card);
         }) 
         }else{
@@ -66,17 +142,9 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
-function handleNewGame(){
-    const parent  = document.querySelector(".choices")
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
-    let choice = getRandomInt(countryObjects.length);
-    loadData(countryObjects[choice].code3);
-    
-}
 
-document.querySelector("#new-game").addEventListener('click',handleNewGame);
+
+
 
 
 // Returns a flag emoji from a 2-letter country code
